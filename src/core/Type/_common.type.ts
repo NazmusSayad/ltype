@@ -11,21 +11,22 @@ import { SchemaString } from './String'
 import { SchemaNumber } from './Number'
 import { SchemaBoolean } from './Boolean'
 
-export type TypePrimitive =
+export type TypeSchemaPrimitive =
   | SchemaString.Sample
   | SchemaNumber.Sample
   | SchemaBoolean.Sample
-export type TypeSchemaUnion =
-  | TypePrimitive
+export type TypeSchemaAll =
+  | TypeSchemaPrimitive
+  | SchemaOr.Sample
   | SchemaInstance.Sample
   | SchemaObject.Sample
   | SchemaRecord.Sample
-  | SchemaOr.Sample
   | SchemaArray.Sample
   | SchemaTuple.Sample
   | SchemaFixed.Sample
 
-export type ExtractPrimitive<T extends TypePrimitive> = T['schema'][number]
+export type ExtractPrimitive<T extends TypeSchemaPrimitive> =
+  T['schema'][number]
 export type ExtractArrayLike<
   T extends SchemaArray.Sample | SchemaOr.Sample,
   TMode extends 'input' | 'output'
@@ -37,6 +38,6 @@ export type ExtractArrayLike<
 }
 
 export type AdjustReadonlyObject<
-  T extends TypeSchemaUnion,
+  T extends TypeSchemaAll,
   R
 > = T['config']['convertToReadonly'] extends true ? DeepReadonly<R> : R

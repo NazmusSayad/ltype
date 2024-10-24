@@ -1,5 +1,5 @@
 import {
-  TypeSchemaUnion,
+  TypeSchemaAll,
   ExtractArrayLike,
   AdjustReadonlyObject,
 } from './_common.type'
@@ -98,7 +98,7 @@ export class SchemaArray<
 export namespace SchemaArray {
   export type Config = { convertToSet?: boolean }
 
-  export type Input = TypeSchemaUnion[]
+  export type Input = TypeSchemaAll[]
   export type Sample = SchemaArray<any, any>
 
   type ArrayOrSet<

@@ -2,7 +2,7 @@ import { object } from '@/r'
 import { InferSchema } from '@/core/Extract.type'
 import { SchemaFreezableCore } from '@/core/SchemaCore'
 import { SchemaCheckConf, SchemaConfig } from '@/config'
-import { TypeSchemaUnion, AdjustReadonlyObject } from './_common.type'
+import { TypeSchemaAll, AdjustReadonlyObject } from './_common.type'
 import { ValidObject, Prettify, MakeOptional } from '@/utils.type'
 import { RypeOk } from '@/RypeOk'
 
@@ -57,7 +57,7 @@ export class SchemaRecord<
 }
 
 export namespace SchemaRecord {
-  export type Input = TypeSchemaUnion
+  export type Input = TypeSchemaAll
   export type Sample = SchemaRecord<any, any>
   export type Extract<
     T extends Sample,

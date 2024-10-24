@@ -2,7 +2,7 @@ import { RypeOk } from '@/RypeOk'
 import { SchemaCore } from '@/core/SchemaCore'
 import { RypeClientError, RypeError } from '@/Error'
 import { SchemaCheckConf, SchemaConfig } from '@/config'
-import { ExtractArrayLike, TypeSchemaUnion } from './_common.type'
+import { ExtractArrayLike, TypeSchemaAll } from './_common.type'
 
 export class SchemaOr<
   T extends SchemaOr.Input,
@@ -14,7 +14,10 @@ export class SchemaOr<
     return this.schema.map((schema) => schema['type'])
   }
 
-  protected checkTypeAndGet(input: unknown, conf: SchemaCheckConf): RypeOk | RypeError {
+  protected checkTypeAndGet(
+    input: unknown,
+    conf: SchemaCheckConf
+  ): RypeOk | RypeError {
     if (this.schema.length === 0) return new RypeOk(input)
     const rypeErrors: RypeClientError[] = []
 
@@ -33,13 +36,13 @@ export class SchemaOr<
 
     return this.getErr(
       input,
-      [...new Set(rypeErrors.map((err) => err.message))].join(' | ')
+      [...new Set(rypeErrors.map((err) => err.message))].join(' || ')
     )
   }
 }
 
 export namespace SchemaOr {
-  export type Input = TypeSchemaUnion[]
+  export type Input = TypeSchemaAll[]
   export type Sample = SchemaOr<any, any>
   export type Extract<
     T extends Sample,

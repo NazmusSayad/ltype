@@ -3,7 +3,7 @@ import {
   SchemaNumber,
   SchemaString,
   SchemaBoolean,
-  TypePrimitive,
+  TypeSchemaPrimitive,
 } from './core/Schema'
 import r from './index'
 import { SchemaConfig } from './config'
@@ -47,7 +47,10 @@ function formatString(
   }
 }
 
-export function env<T extends InputEnv>(schema: T): InferEnv<T> {
+export function env<T extends InputEnv>(
+  schema: T,
+  envObject = process.env
+): InferEnv<T> {
   const result: ValidObject = {}
 
   for (const key in schema) {
@@ -62,7 +65,7 @@ export function env<T extends InputEnv>(schema: T): InferEnv<T> {
 
     try {
       const path = 'ENV.' + key
-      const output = withDefaultValue.parse(process.env[key], path)
+      const output = withDefaultValue.parse(envObject[key], path)
       if (output === undefined) continue
       result[key] = formatString(oldSchema, output, path)
     } catch (err: any) {
@@ -74,7 +77,7 @@ export function env<T extends InputEnv>(schema: T): InferEnv<T> {
   return result as any // Typescript Sucks
 }
 
-export type InputEnv = { [key: string]: TypePrimitive }
+export type InputEnv = { [key: string]: TypeSchemaPrimitive }
 export type InferEnv<T extends InputEnv> = InferOutput<
   SchemaObject<T, { isRequired: true }>
 >

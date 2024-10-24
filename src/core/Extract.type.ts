@@ -2,12 +2,12 @@ import * as Schema from './Schema'
 import { SchemaConfig } from '@/config'
 
 type AdjustSchemaInput<
-  T extends Schema.TypeSchemaUnion,
+  T extends Schema.TypeSchemaAll,
   R
 > = T['config']['isRequired'] extends true ? R : R | undefined
 
 type AdjustSchemaOutput<
-  T extends Schema.TypeSchemaUnion,
+  T extends Schema.TypeSchemaAll,
   R
 > = T['config']['isRequired'] extends true
   ? R
@@ -16,11 +16,11 @@ type AdjustSchemaOutput<
   : R | undefined
 
 type ExtractSchemaCore<
-  T extends Schema.TypeSchemaUnion,
+  T extends Schema.TypeSchemaAll,
   TMode extends 'input' | 'output'
 > =
   // Primitive:
-  T extends Schema.TypePrimitive
+  T extends Schema.TypeSchemaPrimitive
     ? Schema.ExtractPrimitive<T>
     : // Tuple:
     T extends Schema.SchemaTuple.Sample
@@ -49,11 +49,11 @@ export type InferSchema<
   TMode extends 'input' | 'output'
 > = TMode extends 'input' ? InferInput<T> : InferOutput<T>
 
-export type InferInput<T> = T extends Schema.TypeSchemaUnion
+export type InferInput<T> = T extends Schema.TypeSchemaAll
   ? AdjustSchemaInput<T, ExtractSchemaCore<T, 'input'>>
   : never
 
-export type InferOutput<T> = T extends Schema.TypeSchemaUnion
+export type InferOutput<T> = T extends Schema.TypeSchemaAll
   ? AdjustSchemaOutput<T, ExtractSchemaCore<T, 'output'>>
   : never
 

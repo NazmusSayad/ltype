@@ -5,7 +5,7 @@ import { InferSchema } from '@/core/Extract.type'
 import { SchemaFreezableCore } from '@/core/SchemaCore'
 import { SchemaCheckConf, SchemaConfig } from '@/config'
 import { Prettify, FormatTupleToNeverTuple } from '@/utils.type'
-import { AdjustReadonlyObject, TypeSchemaUnion } from './_common.type'
+import { AdjustReadonlyObject, TypeSchemaAll } from './_common.type'
 
 export class SchemaTuple<
   T extends SchemaTuple.Input,
@@ -55,7 +55,7 @@ export class SchemaTuple<
 }
 
 export namespace SchemaTuple {
-  export type Input = TypeSchemaUnion[]
+  export type Input = TypeSchemaAll[]
   export type Sample = SchemaTuple<any, any>
   export type Extract<
     T extends Sample,

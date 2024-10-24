@@ -1,14 +1,18 @@
+import {
+  TypeSchemaAll,
+  TypeSchemaPrimitive,
+  AdjustReadonlyObject,
+} from './_common.type'
 import { RypeOk } from '@/RypeOk'
 import { RypeError } from '@/Error'
 import { SchemaFreezableCore } from '@/core/SchemaCore'
 import { SchemaCheckConf, SchemaConfig } from '@/config'
-import { TypeSchemaUnion, AdjustReadonlyObject } from './_common.type'
-import { InferSchema, InferClassFromSchema } from '@/core/Extract.type'
-import { Prettify, ObjectMerge, ValidObject, MakeOptional } from '@/utils.type'
+import { InferClassFromSchema, InferSchema } from '@/core/Extract.type'
+import { MakeOptional, ObjectMerge, Prettify, ValidObject } from '@/utils.type'
 
 export class SchemaObject<
   T extends SchemaObject.Input,
-  R extends SchemaConfig
+  R extends SchemaConfig,
 > extends SchemaFreezableCore<T, R> {
   protected name = 'object' as const
 
@@ -19,18 +23,17 @@ export class SchemaObject<
     const output: ValidObject = {}
 
     for (const key in this.schema) {
-      const schema = this.schema[key]
+      const schema = this.schema[key] as TypeSchemaPrimitive
+      const inputKey = (schema.config.inputAsKey ?? key) as keyof ValidObject
+      const outputKey = (schema.config.outputAsKey ?? key) as keyof ValidObject
 
-      const result = (schema as any)['checkAndGetResult'](
-        input[schema.config.inputAsKey ?? key],
-        {
-          ...conf,
-          path: `${conf.path || 'object'}.${schema.config.inputAsKey ?? key}`,
-        }
-      )
+      const result = schema['checkAndGetResult'](input[inputKey], {
+        ...conf,
+        path: `${conf.path || 'object'}.${inputKey}`,
+      })
 
       if (result !== undefined) {
-        output[schema.config.outputAsKey ?? key] = result
+        output[outputKey] = result
       }
     }
 
@@ -157,11 +160,11 @@ export class SchemaObject<
   }
 }
 export namespace SchemaObject {
-  export type Input = { [key: string]: TypeSchemaUnion }
+  export type Input = { [key: string]: TypeSchemaAll }
   export type Sample = SchemaObject<any, any>
   export type Extract<
     T extends Sample,
-    TMode extends 'input' | 'output'
+    TMode extends 'input' | 'output',
   > = AdjustReadonlyObject<
     T,
     Prettify<
@@ -171,10 +174,10 @@ export namespace SchemaObject {
             ? T['schema'][K]['config']['inputAsKey']
             : K
           : TMode extends 'output'
-          ? T['schema'][K]['config']['outputAsKey'] extends string
-            ? T['schema'][K]['config']['outputAsKey']
-            : K
-          : K]: InferSchema<T['schema'][K], TMode>
+            ? T['schema'][K]['config']['outputAsKey'] extends string
+              ? T['schema'][K]['config']['outputAsKey']
+              : K
+            : K]: InferSchema<T['schema'][K], TMode>
       }>
     >
   >
