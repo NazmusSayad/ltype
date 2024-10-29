@@ -47,9 +47,8 @@ export class SchemaString<
   public transform(
     transformer: (str: string) => string
   ): SchemaString<T, TConf> {
-    return this.superClone({
-      transformerFn: transformer,
-    }) as any // TypeScript SCREAMS without this
+    this.confirmNotUsingFixedValues()
+    return this.superClone({ transformerFn: transformer }) as any // TypeScript SCREAMS without this
   }
 
   /**
