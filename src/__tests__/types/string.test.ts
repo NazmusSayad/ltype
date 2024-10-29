@@ -35,22 +35,25 @@ describe('String Validation', () => {
       .string()
       .transform((str) => str.replace('a', 'A'))
       .parse('apple')
-
     expect(result4).toBe('Apple')
 
     const result5 = r
       .string()
       .transform((str) => str.replace(/a/g, 'A'))
       .parse('apple')
-
     expect(result5).toBe('Apple')
 
     const result6 = r
       .string()
       .transform((str) => str.replace(/a/g, 'A'))
       .parse('banana')
-
     expect(result6).toBe('bAnAnA')
+
+    const result7 = r
+      .string()
+      .transform((str) => !!str as any)
+      .parse('whatever')
+    expect(result7).toBe('true')
   })
 
   it('Should handle optional values', () => {
