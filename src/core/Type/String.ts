@@ -41,7 +41,6 @@ export class SchemaString<
    * ```ts
    * const schema = r.string().transform((string) => string.replace('a', 'b'))
    * const result = schema.parseTyped('abc') // 'bbc'
-   * console.log(result)
    * ```
    */
   public transform(
