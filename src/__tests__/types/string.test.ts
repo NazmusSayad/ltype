@@ -12,6 +12,47 @@ describe('String Validation', () => {
     expect(result2).toBe('fo')
   })
 
+  it('should custom transform work correctly', () => {
+    const result1 = r
+      .string()
+      .transform((str) => str.toUpperCase())
+      .parse('fo')
+    expect(result1).toBe('FO')
+
+    const result2 = r
+      .string()
+      .transform((str) => str.toLowerCase())
+      .parse('BAR')
+    expect(result2).toBe('bar')
+
+    const result3 = r
+      .string()
+      .transform((str) => str.split('').reverse().join(''))
+      .parse('hello')
+    expect(result3).toBe('olleh')
+
+    const result4 = r
+      .string()
+      .transform((str) => str.replace('a', 'A'))
+      .parse('apple')
+
+    expect(result4).toBe('Apple')
+
+    const result5 = r
+      .string()
+      .transform((str) => str.replace(/a/g, 'A'))
+      .parse('apple')
+
+    expect(result5).toBe('Apple')
+
+    const result6 = r
+      .string()
+      .transform((str) => str.replace(/a/g, 'A'))
+      .parse('banana')
+
+    expect(result6).toBe('bAnAnA')
+  })
+
   it('Should handle optional values', () => {
     const result1 = r.string().optional().parse(undefined)
     expect(result1).toBe(undefined)

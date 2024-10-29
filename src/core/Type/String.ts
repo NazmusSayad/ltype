@@ -18,6 +18,7 @@ export class SchemaString<
     regexPattern?: RegExp
     isCaseSensitiveInput?: boolean
     transformerMode?: 'capital' | 'lower' | 'upper'
+    transformerFn?: (str: string) => string
   }
 > extends SchemaPrimitiveCore<
   T[number] extends never ? SchemaString.Input : T,
@@ -34,6 +35,24 @@ export class SchemaString<
   }
 
   /**
+   * Transforms the **output** strings using a custom function.
+   * @returns The updated SchemaString instance with the custom transformation applied to **output** strings.
+   * @example
+   * ```ts
+   * const schema = r.string().transform((string) => string.replace('a', 'b'))
+   * const result = schema.parseTyped('abc') // 'bbc'
+   * console.log(result)
+   * ```
+   */
+  public transform(
+    transformer: (str: string) => string
+  ): SchemaString<T, TConf> {
+    return this.superClone({
+      transformerFn: transformer,
+    }) as any // TypeScript SCREAMS without this
+  }
+
+  /**
    * Converts the **output** strings to lowercase.
    * @returns The updated SchemaString instance with lowercase transformation applied to **output** strings.
    * @example
@@ -44,7 +63,7 @@ export class SchemaString<
    */
   public toLowerCase(): SchemaString<LowerCaseStrArray<T>, TConf> {
     const schema = this.superClone({ transformerMode: 'lower' })
-    schema.schema = schema.schema.map((str) => schema.transform(str))
+    schema.schema = schema.schema.map((str) => schema.transformCase(str))
     return schema as any // TypeScript SCREAMS without this
   }
 
@@ -59,7 +78,7 @@ export class SchemaString<
    */
   public toUpperCase(): SchemaString<UpperCaseStrArray<T>, TConf> {
     const schema = this.superClone({ transformerMode: 'upper' })
-    schema.schema = schema.schema.map((str) => schema.transform(str))
+    schema.schema = schema.schema.map((str) => schema.transformCase(str))
     return schema as any // TypeScript SCREAMS without this
   }
 
@@ -75,7 +94,7 @@ export class SchemaString<
   public toCapitalize(): SchemaString<CapitalizeStrArray<T>, TConf> {
     const schema = this.superClone({ transformerMode: 'capital' })
     schema.config.transformerMode = 'capital'
-    schema.schema = schema.schema.map((str) => schema.transform(str))
+    schema.schema = schema.schema.map((str) => schema.transformCase(str))
     return schema as any // TypeScript SCREAMS without this
   }
 
@@ -143,7 +162,7 @@ export class SchemaString<
     return this.superClone({ regexPattern: regex })
   }
 
-  private transform(str: string): string {
+  private transformCase(str: string): string {
     switch (this.config.transformerMode) {
       case 'lower':
         return str.toLowerCase()
@@ -165,7 +184,7 @@ export class SchemaString<
     }
 
     if (this.config.transformerMode && !this.config.isCaseSensitiveInput) {
-      return this.transform(input)
+      return this.transformCase(input)
     }
 
     return input
@@ -173,13 +192,17 @@ export class SchemaString<
 
   protected postCheckFormatter(result: RypeOk) {
     if (this.config.transformerMode) {
-      result.value = this.transform(result.value as string)
+      result.value = this.transformCase(result.value as string)
     }
 
-    return result
+    if (!this.config.transformerFn) return result
+    return new RypeOk(this.config.transformerFn(result.value as string))
   }
 
-  protected checkTypeAndGet(input: unknown, conf: SchemaCheckConf): RypeOk | RypeError  {
+  protected checkTypeAndGet(
+    input: unknown,
+    conf: SchemaCheckConf
+  ): RypeOk | RypeError {
     if (
       typeof this.config.minCharLength === 'number' &&
       (input as string).length < this.config.minCharLength
