@@ -195,8 +195,12 @@ export class SchemaString<
       result.value = this.transformCase(result.value as string)
     }
 
-    if (!this.config.transformerFn) return result
-    return new RypeOk(this.config.transformerFn(result.value as string))
+    if (this.config.transformerFn) {
+      const outString = this.config.transformerFn(result.value as string)
+      result.value = String(outString)
+    }
+
+    return result
   }
 
   protected checkTypeAndGet(
